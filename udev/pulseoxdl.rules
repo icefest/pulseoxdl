@@ -1,0 +1,27 @@
+# pulseoxdl - pulse oximetry downloader (Contec CMS50E, USB HID)
+# Copyright © 2023 Donatas Klimašauskas
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Creates symlinks /dev/cms50e<N>, RW for normal users, where <N>
+# refers the device plugged in sequence number (first is 1, etc.)
+# until rebooted (i.e., if, e.g., two devices are plugged in in a
+# sequence and then the first is unplugged and plugged in again, it
+# now will have the <N> equal to 3; if all devices are unplugged, the
+# sequence numbering is reset; rebooting while devices are plugged in
+# may result in random <N>, but within the devices count).
+
+ACTION=="add", SUBSYSTEM=="hidraw", DEVPATH=="*28E9:028A*", GROUP="plugdev", \
+	MODE="0660", PROGRAM="/bin/sh -c 'echo $(($(/bin/ls -t1 /dev/cms50e* \
+	2>/dev/null | /bin/grep -om 1 [0-9]\\+$) + 1))'", SYMLINK+="cms50e%c"
