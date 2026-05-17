@@ -1,0 +1,5 @@
+--quiet
+
+--tool=memcheck
+--memcheck:leak-check=full
+--memcheck:track-origins=yes
